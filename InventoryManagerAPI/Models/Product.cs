@@ -4,7 +4,6 @@ namespace InventoryManagerAPI.Models
 {
     public class Product
     {
-        [Required(ErrorMessage = "ID is required")]
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Product name is required")]

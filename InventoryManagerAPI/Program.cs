@@ -25,4 +25,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+app.UseDefaultFiles(); // index.html
+app.UseStaticFiles();  // wwwroot folder
+
 app.Run();
