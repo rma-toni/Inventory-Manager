@@ -42,5 +42,24 @@ namespace InventoryManagerAPI.Controllers
             _context.SaveChanges();
             return NoContent();
         }
+
+        [HttpPut("{id}")]
+        public IActionResult UpdateProduct(int id, Product updatedProduct)
+        {
+            if (id != updatedProduct.Id) // Basic validation
+            {
+                return BadRequest("The product ID does not match the URL ID");
+            }
+            var product = _context.Products.Find(id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+            product.Name = updatedProduct.Name;
+            product.Price = updatedProduct.Price;
+            product.StockQuantity = updatedProduct.StockQuantity;
+            _context.SaveChanges();
+            return NoContent(); //204 No Content
+        }
     }
 }
