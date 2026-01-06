@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using InventoryManagerAPI.Controllers.Models;
+using InventoryManagerAPI.Models;
+using InventoryManagerAPI.Data;
 
 namespace InventoryManagerAPI.Controllers
 {
@@ -8,33 +9,37 @@ namespace InventoryManagerAPI.Controllers
 
     public class InventoryController : ControllerBase
     {
-        private static List<Product> products = new List<Product>
+        private readonly AppDbContext _context;
+
+        public InventoryController(AppDbContext context)
         {
-            new Product { Id = 1, Name = "Laptop", StockQuantity = 10 }
-        };
+            _context = context;
+        }
 
         [HttpGet]
         public ActionResult<IEnumerable<Product>> GetProducts()
         {
-            return Ok(products);
+            return Ok(_context.Products.ToList());
         }
 
         [HttpPost]
         public ActionResult PostProduct(Product newProduct)
         {
-            products.Add(newProduct);
+            _context.Products.Add(newProduct);
+            _context.SaveChanges();
             return CreatedAtAction(nameof(GetProducts), new { id = newProduct.Id }, newProduct);
         }
 
         [HttpDelete("{id}")]
         public IActionResult DeleteProduct(int id)
         {
-            var product = products.Find(p => p.Id == id);
+            var product = _context.Products.Find(id);
             if (product == null)
             {
                 return NotFound();
             }
-            products.Remove(product);
+            _context.Products.Remove(product);
+            _context.SaveChanges();
             return NoContent();
         }
     }

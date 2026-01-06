@@ -1,4 +1,4 @@
-﻿namespace InventoryManagerAPI.Controllers.Models
+﻿namespace InventoryManagerAPI.Models
 {
     public class Product
     {
