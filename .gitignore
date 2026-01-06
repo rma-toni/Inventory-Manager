@@ -1,0 +1,18 @@
+## Binaries
+[Bb]in/
+[Oo]bj/
+
+## Vs
+.vs/
+*.user
+*.userosscache
+*.sln.docstates
+
+## Config
+appsettings.Development.json
+usersecrets.json
+
+## db
+*.db
+*.db-shm
+*.db-wal
