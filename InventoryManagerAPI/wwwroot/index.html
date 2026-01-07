@@ -16,7 +16,7 @@
                 <div class="col-md-4"><input type="text" id="inputName" class="form-control" placeholder="Name"></div>
                 <div class="col-md-2"><input type="number" id="inputPrice" class="form-control" placeholder="Price"></div>
                 <div class="col-md-2"><input type="number" id="inputStock" class="form-control" placeholder="Stock"></div>
-                <div class="col-md-2"><button onclick="add()" class="btn btn-success w-100">Guardar</button></div>
+                <div class="col-md-2"><button id="main-btn" onclick="execAction()" class="btn btn-success w-100">Save</button></div>
             </div>
         </div>
 
@@ -24,10 +24,10 @@
             <thead class="table-dark">
                 <tr>
                     <th>ID</th>
-                    <th>Producto</th>
-                    <th>Precio</th>
+                    <th>Product</th>
+                    <th>Price</th>
                     <th>Stock</th>
-                    <th>Acciones</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody id="body-table"></tbody>
@@ -35,7 +35,8 @@
     </div>
 
     <script>
-        // Ajustamos la ruta a tu InventoryController
+        let editing = false;
+        
         const API_URL = '/api/inventory';
 
         async function loadProducts() {
@@ -43,8 +44,6 @@
             const products = await res.json();
             const body = document.getElementById('body-table');
 
-            // IMPORTANTE: .NET manda el JSON en minúsculas (camelCase)
-            // Por eso usamos p.id, p.name, p.price y p.stockQuantity
             body.innerHTML = products.map(p => `
                     <tr>
                         <td>${p.id}</td>
@@ -52,7 +51,8 @@
                         <td>$${p.price}</td>
                         <td>${p.stockQuantity}</td>
                         <td>
-                            <button onclick="del(${p.id})" class="btn btn-outline-danger btn-sm">Eliminar</button>
+                            <button onclick="del(${p.id})" class="btn btn-outline-danger btn-sm">Delete</button>
+                            <button onclick="prepModify(${p.id}, '${p.name}', ${p.price}, ${p.stockQuantity})" class="btn btn-outline-warning btn-sm">Modify</button>
                         </td>
                     </tr>
                 `).join('');
@@ -85,6 +85,71 @@
             if (confirm('Do you want to remove this product?')) {
                 await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
                 loadProducts();
+            }
+        }
+
+        function prepModify(id, name, price, stock) {
+            document.getElementById('inputId').value = id;
+            document.getElementById('inputName').value = name;
+            document.getElementById('inputPrice').value = price;
+            document.getElementById('inputStock').value = stock;
+
+            editing = true;
+            document.getElementById('inputId').readOnly = true; // El ID no se toca al editar
+
+            // TRANSFORMAMOS EL BOTÓN
+            const btn = document.getElementById('main-btn');
+            btn.innerText = "Actualizar Cambios";
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-warning');
+        }
+
+        // 2. Esta es la función que llama el botón ahora
+        async function execAction() {
+            if (editing) {
+                await update(); // Si el estado es editando, llama a actualizar
+            } else {
+                await add();    // Si no, llama a guardar nuevo
+            }
+            resetearFormulario();
+        }
+
+        // 3. Limpiamos todo para volver al estado inicial
+        function resetearFormulario() {
+            editing = false;
+            document.getElementById('inputId').readOnly = false;
+            document.querySelectorAll('input').forEach(i => i.value = '');
+
+            // Restauramos el botón a su forma original
+            const btn = document.getElementById('main-btn');
+            btn.innerText = "Save";
+            btn.classList.remove('btn-warning');
+            btn.classList.add('btn-success');
+        }
+
+        async function update() {
+            const id = document.getElementById('inputId').value;
+
+            const editedProduct = {
+                id: parseInt(id),
+                name: document.getElementById('inputName').value,
+                price: parseFloat(document.getElementById('inputPrice').value),
+                stockQuantity: parseInt(document.getElementById('inputStock').value)
+            };
+
+            const res = await fetch(`${API_URL}/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(editedProduct)
+            });
+
+            if (res.ok) {
+                alert("Product updated successfully");
+                document.getElementById('inputId').readOnly = false; // Desbloqueamos el ID
+                document.querySelectorAll('input').forEach(i => i.value = ''); // Limpiamos
+                loadProducts(); // Refrescamos tabla
+            } else {
+                alert("Error updating product");
             }
         }
 
