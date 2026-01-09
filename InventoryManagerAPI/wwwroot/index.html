@@ -95,32 +95,32 @@
             document.getElementById('inputStock').value = stock;
 
             editing = true;
-            document.getElementById('inputId').readOnly = true; // El ID no se toca al editar
+            document.getElementById('inputId').readOnly = true; // Id locked
 
-            // TRANSFORMAMOS EL BOTÓN
+            // Transform Button
             const btn = document.getElementById('main-btn');
             btn.innerText = "Actualizar Cambios";
             btn.classList.remove('btn-success');
             btn.classList.add('btn-warning');
         }
 
-        // 2. Esta es la función que llama el botón ahora
+        // Button Action
         async function execAction() {
             if (editing) {
-                await update(); // Si el estado es editando, llama a actualizar
+                await update(); 
             } else {
-                await add();    // Si no, llama a guardar nuevo
+                await add();  
             }
-            resetearFormulario();
+            resetForm();
         }
 
-        // 3. Limpiamos todo para volver al estado inicial
-        function resetearFormulario() {
+        // Clean
+        function resetForm() {
             editing = false;
             document.getElementById('inputId').readOnly = false;
             document.querySelectorAll('input').forEach(i => i.value = '');
 
-            // Restauramos el botón a su forma original
+            // Button to original form
             const btn = document.getElementById('main-btn');
             btn.innerText = "Save";
             btn.classList.remove('btn-warning');
@@ -145,9 +145,9 @@
 
             if (res.ok) {
                 alert("Product updated successfully");
-                document.getElementById('inputId').readOnly = false; // Desbloqueamos el ID
-                document.querySelectorAll('input').forEach(i => i.value = ''); // Limpiamos
-                loadProducts(); // Refrescamos tabla
+                document.getElementById('inputId').readOnly = false; // unlock ID
+                document.querySelectorAll('input').forEach(i => i.value = ''); // clean
+                loadProducts(); // refresh
             } else {
                 alert("Error updating product");
             }
